@@ -7,13 +7,13 @@ void RTC::rtcSetup() {
   Wire.begin(_RTC_SDA_PIN, _RTC_SCL_PIN);
 
   if (!this->begin()) {
-    Serial.println("Tidak dapat menemukan RTC");
+    USBSerial.println("Tidak dapat menemukan RTC");
     // while (1);
     return;
   }
 
   if (this->lostPower()) {
-    Serial.println("RTC kehilangan daya, mengatur ulang Waktu");
+    USBSerial.println("RTC kehilangan daya, mengatur ulang Waktu");
     this->adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
 }

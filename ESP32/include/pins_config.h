@@ -6,8 +6,8 @@ class PinsConfig {
     static const int RTC_SDA_PIN = 8;
     static const int RTC_SCL_PIN = 9;
     
-    static const int PZEM_RX = 47;
-    static const int PZEM_TX = 48;
+    static const int PZEM_RX = 43;
+    static const int PZEM_TX = 44;
     
     static const int SPI_MOSI = 11;
     static const int SPI_SCK  = 12;

@@ -18,7 +18,7 @@ void Main::myspiEnd() {
 
 void Main::setup(bool debug) {
     if(debug){
-      Serial.begin(_baudRate);
+      USBSerial.begin(_baudRate);
     }
     this->rtcSetup();
     this->pzemSetup();

@@ -8,7 +8,7 @@ void Pzem::pzemSetup() {
   PzemSerial.begin(9600, SERIAL_8N1, _PZEM_RX, _PZEM_TX);
 
   if (!PzemSerial) {
-    Serial.println("Pzem Serial initialization failed");
+    USBSerial.println("Pzem USBSerial initialization failed");
     while (1);
   }
 }

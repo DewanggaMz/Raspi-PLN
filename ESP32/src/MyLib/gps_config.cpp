@@ -6,7 +6,7 @@ EspSoftwareSerial::UART GPS_Serial;
 void GPS::gpsSetup(){
   GPS_Serial.begin(9600, SWSERIAL_8N1, _GPS_RX, _GPS_TX, false);
   if (!GPS_Serial) {
-    Serial.println("GPS_Serial invalid, check config");
+    USBSerial.println("GPS_Serial invalid, check config");
     while (1) {
       delay (1000);
     }

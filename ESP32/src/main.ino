@@ -26,7 +26,7 @@ void setup(){
   rsSerial.begin(9600, SERIAL_8N1, RS485_RX, RS485_TX); 
   base.setup(true);
 
-  Serial.println(base.chipID());
+  USBSerial.println(base.chipID());
 
   xTaskCreate(
   readGps,
@@ -76,11 +76,11 @@ void modbusLoop(){
 
     if (result == node.ku8MBSuccess) {
     data = node.getResponseBuffer(0);
-    Serial.print("Nilai dari register 1 di slave ID 2: ");
-    Serial.println(data);
+    USBSerial.print("Nilai dari register 1 di slave ID 2: ");
+    USBSerial.println(data);
   } else {
-    Serial.print("Error, kode: ");
-    Serial.println(result);
+    USBSerial.print("Error, kode: ");
+    USBSerial.println(result);
   }
     previousMillisSd = millis();
   }
@@ -90,16 +90,16 @@ void writeSdLog(){
   if(millis() - previousMillisSd > 9999){
     base.myspiBegin();
     if (!SD.begin(5, MYSPI)) {
-      Serial.println("Gagal menginisialisasi SD card");
+      USBSerial.println("Gagal menginisialisasi SD card");
       return;
     }
 
     delay(100);
 
     if(base.writeLog("/testlogg.txt", "Hello", 3000)){
-      Serial.println("success");
+      USBSerial.println("success");
     }
-    Serial.println(base.readLastLine("/testlogg.txt"));
+    USBSerial.println(base.readLastLine("/testlogg.txt"));
 
     base.myspiEnd();
     previousMillisSd = millis();
@@ -113,11 +113,11 @@ void sendMessageLora(){
 
     LoRa.setSPI(MYSPI);
     if (!LoRa.begin(LORA_CS, LORA_RST, -1, -1,-1)){
-      Serial.println("Something wrong, can't begin LoRa radio");
+      USBSerial.println("Something wrong, can't begin LoRa radio");
       return;
     }
 
-    Serial.println("LoRa radio initialized");
+    USBSerial.println("LoRa radio initialized");
 
     LoRa.setFrequency(433E6);
     LoRa.setTxPower(17, SX127X_TX_POWER_PA_BOOST);
@@ -152,15 +152,16 @@ void sendMessageLora(){
 
     DeserializationError error = deserializeJson(receiveMsg, decodedString);
 
-    //     Serial.write(message, strlen(message));
-    // Serial.print("RSSI: ");
-    // Serial.print(LoRa.packetRssi());
-    // Serial.print(" dBm | SNR: ");
-    // Serial.print(LoRa.snr());
-    // Serial.println(" dB");
+    //     USBSerial.write(message, strlen(message));
+    // USBSerial.print("RSSI: ");
+    // USBSerial.print(LoRa.packetRssi());
+    // USBSerial.print(" dBm | SNR: ");
+    // USBSerial.print(LoRa.snr());
+    // USBSerial.println(" dB");
 
     if (error) {
-      Serial.println(error.f_str());
+      USBSerial.print("Error: ");
+      USBSerial.println(error.f_str());
       return;
     }
 
@@ -168,12 +169,12 @@ void sendMessageLora(){
     String toReceive = receiveMsg["to"];
     String messageReceive = receiveMsg["data"]["msg"];
 
-    // Serial.println(fromReceive);
-    // Serial.println(toReceive);
-    // Serial.println(messageReceive);
+    // USBSerial.println(fromReceive);
+    // USBSerial.println(toReceive);
+    // USBSerial.println(messageReceive);
 
     if(toReceive != base.chipID() ) {
-      Serial.println("id tidak cocok");
+      USBSerial.println("id tidak cocok");
       return;
     }
 
@@ -196,8 +197,8 @@ void sendMessageLora(){
 
     JsonDocument doc;
       doc["timestamp"] = timestamp;
-      doc["from"] = idcip;
-      doc["to"] = "9901";
+      doc["tx"] = idcip;
+      doc["rx"] = "9901";
 
     JsonObject data = doc["data"].to<JsonObject>();
       data["v"] = v;
@@ -213,12 +214,13 @@ void sendMessageLora(){
     int encodedLen = Base64.encodedLength(strlen(messageJson));
     char encodedData[encodedLen + 1];
     Base64.encode(encodedData, messageJson, strlen(messageJson));
-
-    Serial.println(messageJson);
+  
+    USBSerial.println("Encoded data: " + String(encodedData));
+    USBSerial.println(messageJson);
     totalPackets = base.ceil(strlen(encodedData), packetSize);
 
-    Serial.println("Total packet: " + String(totalPackets));
-    Serial.println("-----------------------------");
+    USBSerial.println("Total packet: " + String(totalPackets));
+    USBSerial.println("-----------------------------");
 
     for (int i = 0; i < totalPackets; i++) {
       sendPacket(i, encodedData);
@@ -231,9 +233,14 @@ void sendMessageLora(){
 }
 
 void sendPacket(int packetIndex, char encodedData[]){
-  Serial.println("test");
+  USBSerial.println("test");
   int startByte = packetIndex * packetSize;
   int endByte = min(startByte + packetSize, (int)strlen(encodedData));
+
+  USBSerial.print(startByte);
+  USBSerial.print(endByte);
+  USBSerial.println(encodedData[0]);
+
 
   LoRa.beginPacket();
   LoRa.write(211);
@@ -245,17 +252,17 @@ void sendPacket(int packetIndex, char encodedData[]){
   LoRa.write('\0');
   LoRa.endPacket();
 
-  Serial.write(messageJson);
-  Serial.println();
+  USBSerial.write(messageJson);
+  USBSerial.println();
 
-  Serial.print("Transmit time: ");
+  USBSerial.print("Transmit time: ");
   LoRa.wait();
 
-  Serial.print(LoRa.transmitTime());
-  Serial.println(" ms");
+  USBSerial.print(LoRa.transmitTime());
+  USBSerial.println(" ms");
 
-  Serial.print("Paket "); Serial.print(packetIndex + 1); Serial.println(" dikirim!");
-  Serial.println();
+  USBSerial.print("Paket "); USBSerial.print(packetIndex + 1); USBSerial.println(" dikirim!");
+  USBSerial.println();
 }
 
 void readGps(void * parameter){

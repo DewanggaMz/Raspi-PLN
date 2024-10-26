@@ -5,10 +5,10 @@
 // void SdCard::sdCardSetup(SPIClass  spi) {
 
 //   if (!SD.begin(_SD_CS, spi)) {
-//     Serial.println("Gagal menginisialisasi SD card");
+//     USBSerial.println("Gagal menginisialisasi SD card");
 //     return;
 //   }
-//   Serial.println("SD card berhasil diinisialisasi");
+//   USBSerial.println("SD card berhasil diinisialisasi");
 // }
 
 // void SdCard::sdEnd(SPIClass  spi) {
@@ -19,7 +19,7 @@
 void SdCard::writeFile(const char *path, const char *message) {
   File file = SD.open(path, FILE_WRITE);
   if (!file) {
-    Serial.println("Gagal membuka file untuk menulis");
+    USBSerial.println("Gagal membuka file untuk menulis");
     return;
   }
   file.println(message);
@@ -29,7 +29,7 @@ void SdCard::writeFile(const char *path, const char *message) {
 bool SdCard::append(const char *path, const char *message, bool first) {
 File file = SD.open(path, FILE_APPEND);
   if (!file) {
-    Serial.println("Gagal membuka file untuk menulis.");
+    USBSerial.println("Gagal membuka file untuk menulis.");
     return false;
   }
   if ( first ) {
@@ -46,7 +46,7 @@ File file = SD.open(path, FILE_APPEND);
 void SdCard::readFile(const char *path, int startLine,int endLine) {
   File file = SD.open(path);
   if (!file) {
-    Serial.println("Gagal membuka file untuk membaca");
+    USBSerial.println("Gagal membuka file untuk membaca");
     return;
   }
   int currentIndex = 0;
@@ -63,7 +63,7 @@ void SdCard::readFile(const char *path, int startLine,int endLine) {
     }
 
     if (currentIndex >= startLine && currentIndex <= endLine) {
-      Serial.println(line);
+      USBSerial.println(line);
     }
     if (currentIndex > endLine) {
       break;
@@ -75,7 +75,7 @@ void SdCard::readFile(const char *path, int startLine,int endLine) {
 String SdCard::readLastLine(const char *path) {
   File file = SD.open(path, FILE_READ);
   if (!file) {
-    // Serial.println("Gagal membuka file untuk membaca");
+    // USBSerial.println("Gagal membuka file untuk membaca");
     return "";
   }
   String lastLine = "";
@@ -115,7 +115,7 @@ int SdCard::lastIndex(File file) {
   if (posisiTitik != -1) {
     lastIndex = (lastLine.substring(0, posisiTitik)).toInt();
   } else {
-    Serial.println("Titik tidak ditemukan dalam string.");
+    USBSerial.println("Titik tidak ditemukan dalam string.");
   }
 
   return lastIndex;
@@ -125,7 +125,7 @@ bool SdCard::writeLog(const char *path, const char *message, int limit){
   File file = SD.open(path, FILE_READ);
   if (!file) {
     append(path, message, true);
-    Serial.println("file tidak di temukan.... membuat file baru");
+    USBSerial.println("file tidak di temukan.... membuat file baru");
     return false;
   }
 
